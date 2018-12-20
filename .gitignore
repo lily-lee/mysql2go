@@ -1,0 +1,5 @@
+.idea
+.DS_Store
+mysql2go
+mysql2go.out.go
+t.sql
