@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -22,7 +23,7 @@ const (
 	unknown = "unknown"
 )
 
-var s = `package main 
+var s = `package {PACKAGE} 
 
 `
 
@@ -36,13 +37,20 @@ func Convert(infile, outfile string) error {
 	}
 
 	if outfile == "" {
-		outfile = "mysql2go.out.go"
+		outfile = infile + ".go"
 	}
 
 	return convert(f, outfile)
 }
 
 func convert(f *os.File, outfile string) error {
+	packageName := filepath.Dir(outfile)
+	if packageName == "." {
+		packageName = "main"
+	}
+
+	s = strings.Replace(s, "{PACKAGE}", packageName, 1)
+
 	otf, err := os.OpenFile(outfile, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, os.ModePerm)
 	defer otf.Close()
 	if err != nil {
@@ -103,13 +111,58 @@ func convert(f *os.File, outfile string) error {
 	return nil
 }
 
+var upperWords = map[string]bool{
+	"ACL":   true,
+	"API":   true,
+	"ASCII": true,
+	"CPU":   true,
+	"CSS":   true,
+	"DNS":   true,
+	"EOF":   true,
+	"GUID":  true,
+	"HTML":  true,
+	"HTTP":  true,
+	"HTTPS": true,
+	"ID":    true,
+	"IP":    true,
+	"JSON":  true,
+	"LHS":   true,
+	"QPS":   true,
+	"RAM":   true,
+	"RHS":   true,
+	"RPC":   true,
+	"SLA":   true,
+	"SMTP":  true,
+	"SQL":   true,
+	"SSH":   true,
+	"TCP":   true,
+	"TLS":   true,
+	"TTL":   true,
+	"UDP":   true,
+	"UI":    true,
+	"UID":   true,
+	"UUID":  true,
+	"URI":   true,
+	"URL":   true,
+	"UTF8":  true,
+	"VM":    true,
+	"XML":   true,
+	"XMPP":  true,
+	"XSRF":  true,
+	"XSS":   true,
+}
+
 func getName(field string) string {
-	return strings.Replace(
-		strings.Title(strings.Replace(strings.Trim(field, "`"), "_", " ", -1)),
-		" ",
-		"",
-		-1,
-	)
+	s := strings.Split(strings.Replace(strings.Trim(field, "`"), "_", " ", -1), " ")
+	for i := range s {
+		if _, ok := upperWords[strings.ToUpper(s[i])]; ok {
+			s[i] = strings.ToUpper(s[i])
+		} else {
+			s[i] = strings.Title(s[i])
+		}
+	}
+
+	return strings.Join(s, "")
 }
 
 func getType(fields []string) string {

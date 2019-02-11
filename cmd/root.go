@@ -26,7 +26,7 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "mysql2go",
+	Use:   "mysql2go sqlfile [gofile]",
 	Short: "mysql2go",
 	Long: `Hi~, Welcome to mysql2go.
 	
@@ -34,6 +34,10 @@ mysql2go is used to convert mysql table structure to go struct.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if infile == "" && len(args) > 0 {
 			infile = args[0]
+		}
+
+		if outfile == "" && len(args) > 1 {
+			outfile = args[1]
 		}
 
 		convert.Convert(infile, outfile)
