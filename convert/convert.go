@@ -63,10 +63,10 @@ func convert(f *os.File, outfile string) error {
 	sql := false
 
 	for input.Scan() {
-		line := strings.ToLower(strings.Trim(input.Text(), " "))
+		line := strings.Trim(input.Text(), " ")
 		field0 := regexp.MustCompile("`(.*)`").FindString(line)
 
-		if strings.Contains(line, "create table") {
+		if strings.Contains(strings.ToLower(line), "create table") {
 			sql = true
 			tableName := getName(field0)
 			//s += strings.Replace(start, "{TYPE}", tableName, 1)
@@ -96,7 +96,7 @@ func convert(f *os.File, outfile string) error {
 			c := comment
 			if strings.ToLower(fields[i]) == "comment" {
 				//s += strings.Replace(c, "{COMMENT}", name+" "+strings.Trim(fields[i+1], "',"), 1)
-				otf.Write([]byte(strings.Replace(c, "{COMMENT}", name+" "+strings.Trim(fields[i+1], "',"), 1)))
+				otf.Write([]byte(strings.Replace(c, "{COMMENT}", name+" "+strings.TrimLeft(strings.TrimRight(strings.Join(fields[i+1:], " "), "',"), "'"), 1)))
 			}
 		}
 

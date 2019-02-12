@@ -3,3 +3,4 @@
 mysql2go
 mysql2go.out.go
 t.sql
+*.bak
