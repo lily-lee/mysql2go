@@ -17,8 +17,7 @@ type {TYPE} struct {
 `
 	tab = `	{FIELD} {FIELD_TYPE} ` + "`json:" + `"{JSON}"` + "`" + `
 `
-	end = `
-}
+	end = `}
 
 `
 	unknown = "unknown"
@@ -77,12 +76,9 @@ func convert(f *os.File, outfile string) error {
 			continue
 		}
 
-		if !sql {
-			continue
-		}
-
 		fields := strings.Fields(strings.Replace(line, field0, strings.Replace(field0, " ", "_", -1), -1))
 		if len(fields) <= 1 || strings.ToLower(fields[0]) == "key" || strings.ToLower(fields[0]) == "primary" {
+			sql = false
 			continue
 		}
 
@@ -90,6 +86,10 @@ func convert(f *os.File, outfile string) error {
 			//s += end
 			otf.Write([]byte(end))
 			sql = false
+			continue
+		}
+
+		if !sql {
 			continue
 		}
 
